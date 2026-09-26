@@ -13,12 +13,13 @@ That layer used to be the whole product, because talking to a database was hard.
 
 ## What you give up
 
-- **A visual board.** Stages are a table you ask about, not cards you drag.
-- **A phone app.** It runs where Claude Code runs.
-- **A vendor help desk.** This is open source. Enterprise DNA supports the installed version for businesses that want someone to call.
+- **The drag-and-drop calendar.** The book is a table you ask about and a printed day sheet, not columns you drag bookings across. `npm run view` renders the week as a page; moving a booking is one sentence.
+- **Client self-booking online.** In the free version the phone rings and a person books it. A booking page that writes into these same tables is exactly the kind of thing Enterprise DNA builds into a customised version.
+- **Automatic SMS sending.** Reminders and recalls draft as messages a person sends from their own phone. Wired-up sending is a customisation, and the consent rules are already built in.
+- **A vendor help desk.** This is open source. Enterprise DNA supports the installed version for salons that want someone to call.
 
 ## Who this fits
 
-Small teams who already use Claude Code, or who would rather learn to ask than learn another interface. If your team needs a screen to look at all day, keep Timely. If you need the answers more than the screens, this is cheaper, faster and yours.
+Owner-run salons, barbershops and clinics where one or two people run the book, or anyone who would rather learn to ask than learn another interface. If your front desk needs a screen to look at all day, keep Timely. If you need the answers, the record and the money more than the screens, this is cheaper, faster and yours.
 
 Installed and run for you: https://enterprisedna.co/omni/instead-of/timely

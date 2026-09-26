@@ -22,7 +22,31 @@ Fill this in once. A worker with context knows. A worker without it guesses.
 
 | When the operator asks for... | Use this |
 |---|---|
-| <!-- TODO(author): one row per slash command --> | `/...` |
+| "what needs my attention", "what's wrong this morning" | `/attention` |
+| "show me the book", "who is in today / tomorrow" | `/book` |
+| "book X in", "can Ava fit a colour Thursday" | `/new-booking` |
+| "check X out", "she took a shampoo too" | `/checkout` |
+| "X didn't show" | `/no-show` |
+| "how's rebooking", "who leaves without rebooking" | `/rebooking` |
+| "how quiet is tomorrow", "where are the gaps" | `/gaps` |
+| "who's gone quiet", "who should we call" | `/lapsed` |
+| "who keeps no-showing" | `/no-shows` |
+| "what did we take", "how's the week" | `/takings` |
+| "pull up X", "what do we know about X" | `/client` |
+| "what's her formula", "record the mix" | `/formulas` |
+| "record the patch test", "she had a reaction" | `/patch-test` |
+| "what's low", "sell a serum", "stocktake" | `/stock` |
+| "sell a voucher", "how much voucher money is out" | `/vouchers` |
+| "show me the team", "change Ruby's hours" | `/team` |
+| "the menu", "add a service" | `/services` |
+| "are we compliant", "check the rules" | `/compliance` |
+| "Monday review", "how are we set for the week" | `/weekly-review` |
+| "note that X said...", "log the call" | `/log` |
+| "remind tomorrow's clients", "confirmations" | `/draft-reminders` |
+| "win back the quiet ones", "recall messages" | `/draft-recall` |
+| "bring our Timely data across" | `/import` |
+| "add a field", "change a rule", "our patch tests last a year" | `/customise` |
+| "a page that shows..." | `/new-view` |
 
 If an ask fits nothing here, run the CLI directly (`npm run <cli> -- --help`) and then propose a new command for it.
 

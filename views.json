@@ -1,13 +1,47 @@
 [
   {
     "name": "week",
-    "title": "This week",
-    "subtitle": "Salon for Claude Code: what needs attention, rendered by npm run view",
+    "title": "The week",
+    "subtitle": "Salon for Claude Code: what needs a decision and the book ahead, rendered by npm run view",
     "sections": [
       {
-        "title": "Needs attention",
-        "note": "TODO(author): point this at the industry's attention view (overdue, stuck, quiet).",
-        "sql": "select 'replace me' as item, 'TODO(author)' as why"
+        "title": "Needs a decision",
+        "note": "Worst first. A client booked for colour without a valid patch test outranks everything.",
+        "sql": "select reason, label, who, place, detail from v_attention order by rank, days desc nulls last limit 15"
+      },
+      {
+        "title": "The book, next seven days",
+        "sql": "select to_char(on_date, 'Dy DD Mon') as day, to_char(on_date + starts_at, 'HH24:MI') as starts, staff as chair, client, services, round(total_cents / 100.0, 2) as price_nzd, state from v_appointments where on_date >= current_date and on_date < current_date + 7 and status = 'booked' order by on_date, starts_at"
+      },
+      {
+        "title": "The empty chair",
+        "note": "Open hours per chair per day. The recall list is who to call.",
+        "sql": "select to_char(on_date, 'Dy DD Mon') as day, staff as chair, round(booked_minutes / 60.0, 1) as booked_hours, round(free_minutes / 60.0, 1) as open_hours from v_gaps where on_date >= current_date order by on_date, staff"
+      }
+    ]
+  },
+  {
+    "name": "money",
+    "title": "The money",
+    "subtitle": "Salon for Claude Code: takings, rebooking and the client risks, rendered by npm run view",
+    "sections": [
+      {
+        "title": "Takings, last seven days",
+        "sql": "select staff as chair, sum(visits)::int as visits, round(sum(service_cents) / 100.0, 2) as services_nzd, sum(retail_units)::int as retail_units, round(sum(retail_cents) / 100.0, 2) as retail_nzd from v_takings where on_date > current_date - 7 and on_date <= current_date group by staff order by sum(service_cents) + sum(retail_cents) desc"
+      },
+      {
+        "title": "Rebooking, last 28 days",
+        "note": "Who leaves holding their next appointment. The number a salon lives or dies on.",
+        "sql": "select staff as chair, visits, rebooked, rate_pct from v_rebooking order by rate_pct desc"
+      },
+      {
+        "title": "The recall list",
+        "note": "Lapsed clients, worth the most first. Opted in gets the recall draft; the rest get a personal call (UEMA 2007).",
+        "sql": "select name as client, to_char(last_visit_on, 'DD Mon') as last_in, days_since_visit as quiet_days, usual_gap_days, round(spend_cents_12m / 100.0, 2) as spend_12m_nzd, case when marketing_opt_in then 'yes' else 'call only' end as recall_ok from v_lapsed"
+      },
+      {
+        "title": "Voucher liability and low stock",
+        "sql": "select 'voucher ' || ref as item, coalesce(recipient, '') as who, round(balance_cents / 100.0, 2) as value_nzd, state from v_vouchers where balance_cents > 0 union all select name, kind, stock_on_hand, 'reorder at ' || reorder_level from v_stock_low"
       }
     ]
   }

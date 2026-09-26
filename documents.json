@@ -1,11 +1,58 @@
 [
   {
-    "name": "example",
-    "title": "TODO(author): the first document this industry must produce",
-    "for_each": "select gen_random_uuid() as id, 'Example' as name",
+    "name": "day-sheet",
+    "title": "Day sheet",
+    "for_each": "select st.id, st.name || ', ' || to_char(current_date + 1, 'Dy DD Mon YYYY') as name from staff st where st.status = 'active' and exists (select 1 from appointments a where a.staff_id = st.id and a.on_date = current_date + 1 and a.status = 'booked')",
     "file": "name",
     "sections": [
-      { "title": "Details", "sql": "select 'replace me' as item, $1::text as record_id" }
+      {
+        "title": "The column",
+        "note": "Tomorrow's bookings for this chair. A state in capitals wants something before the client arrives.",
+        "sql": "select to_char(va.on_date + va.starts_at, 'HH24:MI') as starts, to_char(va.on_date + va.ends_at, 'HH24:MI') as ends, va.client, va.services, round(va.total_cents / 100.0, 2) as price_nzd, va.state from v_appointments va where va.staff_id = $1 and va.on_date = current_date + 1 and va.status = 'booked' order by va.starts_at"
+      },
+      {
+        "title": "Prep notes",
+        "note": "Patch test state, allergy notes and the last formula for tomorrow's clients. Read before mixing.",
+        "sql": "select va.client, pt.state as patch_test, coalesce(va.allergy_note, '') as allergy_note, coalesce((select f.formula from formulas f where f.client_id = va.client_id order by f.recorded_on desc limit 1), '') as last_formula from v_appointments va join v_patch_tests pt on pt.client_id = va.client_id where va.staff_id = $1 and va.on_date = current_date + 1 and va.status = 'booked' order by va.starts_at"
+      }
+    ]
+  },
+  {
+    "name": "client-card",
+    "title": "Client record card",
+    "for_each": "select c.id, c.name from clients c where c.status = 'active' and exists (select 1 from appointments a where a.client_id = c.id and a.status = 'completed')",
+    "file": "name",
+    "sections": [
+      {
+        "title": "The client",
+        "sql": "select coalesce(vc.phone, '') as phone, coalesce(vc.email, '') as email, vc.patch_test, coalesce(to_char(vc.patch_tested_on, 'DD Mon YYYY'), '') as last_test, coalesce(vc.allergy_note, '') as allergy_note, case when vc.marketing_opt_in then 'yes' else 'no' end as marketing_opt_in, coalesce(to_char(vc.last_visit_on, 'DD Mon YYYY'), '') as last_visit, coalesce(vc.usual_gap_days::text, '') as usual_gap_days from v_clients vc where vc.client_id = $1"
+      },
+      {
+        "title": "Colour formula record",
+        "note": "What went on this head, in what mix, for how long. The record that makes the next visit repeatable.",
+        "sql": "select to_char(f.recorded_on, 'DD Mon YYYY') as day, coalesce(s.name, '') as stylist, f.formula from formulas f left join staff s on s.id = f.staff_id where f.client_id = $1 order by f.recorded_on desc"
+      },
+      {
+        "title": "Visits",
+        "sql": "select to_char(va.on_date, 'DD Mon YYYY') as day, va.staff as with_stylist, va.services, round(va.total_cents / 100.0, 2) as price_nzd, va.state from v_appointments va where va.client_id = $1 and va.status in ('completed', 'no_show') order by va.on_date desc limit 20"
+      }
+    ]
+  },
+  {
+    "name": "takings-summary",
+    "title": "Takings summary",
+    "for_each": "select st.id, st.name || ', ' || to_char(current_date - 6, 'DD Mon') || ' to ' || to_char(current_date, 'DD Mon YYYY') as name from staff st where exists (select 1 from v_takings t where t.staff_id = st.id and t.on_date > current_date - 7 and t.on_date <= current_date)",
+    "file": "name",
+    "sections": [
+      {
+        "title": "The week by day",
+        "note": "Services checked out and retail over the counter, off the record. GST and wages live in accounting and payroll.",
+        "sql": "select to_char(t.on_date, 'Dy DD Mon') as day, t.visits, round(t.service_cents / 100.0, 2) as services_nzd, t.retail_units, round(t.retail_cents / 100.0, 2) as retail_nzd from v_takings t where t.staff_id = $1 and t.on_date > current_date - 7 and t.on_date <= current_date order by t.on_date"
+      },
+      {
+        "title": "Totals",
+        "sql": "select sum(t.visits)::int as visits, round(sum(t.service_cents) / 100.0, 2) as services_nzd, round(sum(t.retail_cents) / 100.0, 2) as retail_nzd, round(sum(t.service_cents + t.retail_cents) / 100.0, 2) as total_nzd from v_takings t where t.staff_id = $1 and t.on_date > current_date - 7 and t.on_date <= current_date"
+      }
     ]
   }
 ]
